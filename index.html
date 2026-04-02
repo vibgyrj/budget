@@ -28,21 +28,13 @@ h1 {
   flex: 1;
 }
 
-/* MODERN INPUT WITHOUT BREAKING TABLE */
 input {
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   outline: none;
-  transition: 0.2s;
 }
 
-input:focus {
-  border-color: #3f51b5;
-  box-shadow: 0 0 0 2px rgba(63,81,181,0.15);
-}
-
-/* TABLE KEPT EXACT STRUCTURE */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -62,7 +54,6 @@ tr:nth-child(even) {
   background: #e8eaf6;
 }
 
-/* INPUTS INSIDE TABLE (IMPORTANT FIX) */
 td input {
   width: 95%;
   box-sizing: border-box;
@@ -98,8 +89,8 @@ button {
 <h1>Budget Planner</h1>
 
 <div class="top-row">
-  <input type="text" inputmode="numeric" placeholder="₹ Budget">
-  <input type="text" inputmode="numeric" placeholder="₹ Balance">
+  <input id="budget" type="text" placeholder="₹ Budget">
+  <input id="balance" type="text" placeholder="₹ Balance" readonly>
 </div>
 
 <table>
@@ -108,28 +99,58 @@ button {
     <th>Amount (₹)</th>
   </tr>
 
-  <!-- ROWS RESTORED -->
-  <script>
-    for (let i = 0; i < 10; i++) {
-      document.write(`
-        <tr>
-          <td><input type="text" placeholder="Enter Description"></td>
-          <td class="amount"><input type="text" inputmode="numeric" placeholder="Amount"></td>
-        </tr>
-      `);
-    }
-  </script>
+  <tbody id="rows"></tbody>
 
   <tr class="total-row">
     <td>Total</td>
-    <td class="amount">₹ 0</td>
+    <td class="amount" id="total">₹ 0</td>
   </tr>
 </table>
 
 <div class="buttons">
-  <button>Download</button>
-  <button>Print</button>
+  <button onclick="window.print()">Print</button>
 </div>
+
+<script>
+const rowsContainer = document.getElementById("rows");
+
+// Create rows
+for (let i = 0; i < 10; i++) {
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Enter Description"></td>
+    <td class="amount"><input class="amt" type="text" placeholder="Amount"></td>
+  `;
+
+  rowsContainer.appendChild(tr);
+}
+
+// Get elements
+const budgetInput = document.getElementById("budget");
+const balanceInput = document.getElementById("balance");
+const totalDisplay = document.getElementById("total");
+
+// Main calculation
+function calculate() {
+  let total = 0;
+
+  document.querySelectorAll(".amt").forEach(input => {
+    let val = parseFloat(input.value) || 0;
+    total += val;
+  });
+
+  totalDisplay.textContent = "₹ " + total;
+
+  let budget = parseFloat(budgetInput.value) || 0;
+  let balance = budget - total;
+
+  balanceInput.value = "₹ " + balance;
+}
+
+// Event listeners
+document.addEventListener("input", calculate);
+</script>
 
 </body>
 </html>
