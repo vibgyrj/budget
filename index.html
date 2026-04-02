@@ -81,6 +81,13 @@ button {
   border: none;
   border-radius: 6px;
 }
+
+.add-btn {
+  margin-left: 5px;
+  padding: 2px 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
 </style>
 </head>
 
@@ -114,16 +121,39 @@ button {
 <script>
 const rowsContainer = document.getElementById("rows");
 
-// Create rows
+// Create initial rows
 for (let i = 0; i < 10; i++) {
+  addRow();
+}
+
+function addRow() {
   const tr = document.createElement("tr");
 
   tr.innerHTML = `
     <td><input type="text" placeholder="Enter Description"></td>
-    <td class="amount"><input class="amt" type="text" placeholder="Amount"></td>
+    <td class="amount">
+      <input class="amt" type="text" placeholder="Amount">
+      <button class="add-btn">+</button>
+    </td>
   `;
 
   rowsContainer.appendChild(tr);
+
+  updatePlusButtons();
+}
+
+// Ensure only last row has "+" button
+function updatePlusButtons() {
+  const buttons = document.querySelectorAll(".add-btn");
+
+  buttons.forEach(btn => btn.style.display = "none");
+
+  if (buttons.length > 0) {
+    const lastBtn = buttons[buttons.length - 1];
+    lastBtn.style.display = "inline-block";
+
+    lastBtn.onclick = addRow;
+  }
 }
 
 // Get elements
@@ -148,9 +178,8 @@ function calculate() {
   balanceInput.value = "₹ " + balance;
 }
 
-// Event listeners
+// Event listener
 document.addEventListener("input", calculate);
 </script>
-
 </body>
 </html>
