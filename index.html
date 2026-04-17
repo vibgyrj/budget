@@ -1,49 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budget</title>
-</head>
-<body>
-    <h1>Budget Management</h1>
-    <button id="import">Import CSV</button>
-    <button id="export">Export CSV</button>
-    <script>
-        document.getElementById('import').addEventListener('click', function() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.csv';
-            input.onchange = e => {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = event => {
-                    const content = event.target.result;
-                    const rows = content.split('\n');
-                    // Assuming the first row is the header
-                    for (let i = 1; i < rows.length; i++) {
-                        const cols = rows[i].split('\t');
-                        // Prefill data into the fields with empty quotes for text fields
-                        // Add your prefill logic here based on your budget structure
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        });
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Planner</title>
 
-        document.getElementById('export').addEventListener('click', function() {
-            const data = []; // Gather current budget data
-            // Add logic to append your current budget data into the above array
-            const csvContent = 'data:text/csv;charset=utf-8,' + data.map(e => e.join('\t')).join('\n');
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', 'budget.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-    </script>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f2f5;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #3f51b5;
+}
+
+.top-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.top-row input {
+  flex: 1;
+}
+
+input {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #3f51b5;
+  color: white;
+  padding: 10px;
+}
+
+td {
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background: #e8eaf6;
+}
+
+td input {
+  width: 95%;
+  box-sizing: border-box;
+}
+
+.amount {
+  text-align: right;
+}
+
+.total-row {
+  background: #c5cae9;
+  font-weight: bold;
+}
+
+.buttons {
+  text-align: center;
+  margin-top: 15px;
+}
+
+button {
+  padding: 8px 16px;
+  margin: 5px;
+  background: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+.add-btn {
+  margin-left: 5px;
+  padding: 2px 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Budget Planner</h1>
+
+<div class="top-row">
+  <input id="budget" type="text" placeholder="₹ Budget">
+  <input id="balance" type="text" placeholder="₹ Balance" readonly>
+</div>
+
+<table>
+  <tr>
+    <th>Item</th>
+    <th>Amount (₹)</th>
+  </tr>
+
+  <tbody id="rows"></tbody>
+
+  <tr class="total-row">
+    <td>Total</td>
+    <td class="amount" id="total">₹ 0</td>
+  </tr>
+</table>
+
+<div class="buttons">
+  <button onclick="window.print()">Print</button>
+</div>
+
+<script>
+const rowsContainer = document.getElementById("rows");
+
+// Create initial rows
+for (let i = 0; i < 10; i++) {
+  addRow();
+}
+
+function addRow() {
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Enter Description"></td>
+    <td class="amount">
+      <input class="amt" type="text" placeholder="Amount">
+      <button class="add-btn">+</button>
+    </td>
+  `;
+
+  rowsContainer.appendChild(tr);
+
+  updatePlusButtons();
+}
+
+// Ensure only last row has "+" button
+function updatePlusButtons() {
+  const buttons = document.querySelectorAll(".add-btn");
+
+  buttons.forEach(btn => btn.style.display = "none");
+
+  if (buttons.length > 0) {
+    const lastBtn = buttons[buttons.length - 1];
+    lastBtn.style.display = "inline-block";
+
+    lastBtn.onclick = addRow;
+  }
+}
+
+// Get elements
+const budgetInput = document.getElementById("budget");
+const balanceInput = document.getElementById("balance");
+const totalDisplay = document.getElementById("total");
+
+// Main calculation
+function calculate() {
+  let total = 0;
+
+  document.querySelectorAll(".amt").forEach(input => {
+    let val = parseFloat(input.value) || 0;
+    total += val;
+  });
+
+  totalDisplay.textContent = "₹ " + total;
+
+  let budget = parseFloat(budgetInput.value) || 0;
+  let balance = budget - total;
+
+  balanceInput.value = "₹ " + balance;
+}
+
+// Event listener
+document.addEventListener("input", calculate);
+</script>
 </body>
 </html>
